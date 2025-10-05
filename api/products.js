@@ -11,10 +11,12 @@ app.use(express.json());
 app.use(cors());
 
 // ✅ MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+if (!mongoose.connection.readyState) {
+  mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => console.log("✅ Connected to MongoDB"))
+    .catch((err) => console.error("❌ MongoDB connection error:", err));
+}
 
 // ✅ Routes
 app.get("/api/products", async (req, res) => {
@@ -28,14 +30,11 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// ✅ Status route (for quick checks)
+// ✅ Health check route
 app.get("/api/status", (req, res) => {
   console.log("✅ Backend is running properly.");
   res.json({ message: "Server is running and connected to MongoDB!" });
 });
 
-// ✅ Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});
+// ✅ Export for Vercel
+export default app;
